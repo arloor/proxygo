@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/arloor/proxygo/pac"
+	"github.com/arloor/proxygo/extent"
 	"github.com/arloor/proxygo/util"
 	"log"
 	"net"
@@ -25,7 +25,9 @@ var config = Info{
 }
 
 func init() {
+	log.Println("！！！请务必在运行前将proxy.json和pac.txt放置到", util.GetWorkDir(), "路径下")
 	configinit()
+	log.Println("配置信息为：", config)
 	localAddr = ":" + strconv.Itoa(config.ClientPort)
 	proxyAddr = config.ProxyAddr + ":" + strconv.Itoa(config.ProxyPort)
 }
@@ -35,7 +37,9 @@ var proxyAddr string
 
 func main() {
 
-	go pac.ServePAC()
+	extent.SetAutoRun()
+
+	go extent.ServePAC()
 	//printLocalIPs()
 
 	ln, err := net.Listen("tcp", localAddr)
@@ -163,13 +167,10 @@ func (configInfo Info) String() string {
 }
 
 func configinit() {
-	configFile, err := os.Open("config.json")
+	configFile, err := os.Open(util.GetWorkDir() + "proxy.json")
 	if err != nil {
-		log.Println("Error", "打开config.json失败，使用默认配置", err)
+		log.Println("Error", "打开proxy.json失败，使用默认配置", err)
 		return
-	} else {
-		log.Println("Done", "打开config.json成功", "下面读取配置文件")
-		log.Println("Reading...")
 	}
 	bufSize := 1024
 	buf := make([]byte, bufSize)
@@ -178,10 +179,10 @@ func configinit() {
 		n, err := configFile.Read(buf)
 		total += n
 		if err != nil {
-			log.Println("Error", "读取config.json失败，使用默认配置", err)
+			log.Println("Error", "读取proxy.json失败，使用默认配置", err)
 			return
 		} else if n < bufSize {
-			log.Println("Done", "读取config.json成功")
+			log.Println("OK", "读取proxy.json成功")
 			buf = buf[:total]
 			break
 		}
@@ -189,10 +190,8 @@ func configinit() {
 	}
 	err = json.Unmarshal(buf, &config)
 	if err != nil {
-		log.Println("Error", "读取config.json失败，使用默认配置", err)
+		log.Println("Error", "读取proxy.json失败，使用默认配置", err)
 		return
-	} else {
-		log.Println("Done", "config被设置为", config)
 	}
 
 }

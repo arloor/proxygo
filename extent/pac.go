@@ -1,26 +1,27 @@
-package pac
+package extent
 
 import (
 	"fmt"
+	"github.com/arloor/proxygo/util"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"runtime"
 )
 
-var buf, err = ioutil.ReadFile("pac.txt")
+var buf, err = ioutil.ReadFile(util.GetWorkDir() + "pac.txt")
 
 const pacUrl = "http://127.0.0.1:9999/pac"
 
 //在windows平台才会有真实的操作
-var setWindowsRegistry func() = func() {}
+var setWindowsPACRegistry func() = func() {}
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(buf))
 	switch runtime.GOOS {
 	case "darwin":
 	case "windows":
-		setWindowsRegistry()
+		setWindowsPACRegistry()
 	case "linux":
 	}
 }
@@ -34,7 +35,7 @@ func ServePAC() {
 		switch runtime.GOOS {
 		case "darwin":
 		case "windows":
-			setWindowsRegistry()
+			setWindowsPACRegistry()
 		case "linux":
 		}
 		if err := http.ListenAndServe(":9999", nil); err != nil {
