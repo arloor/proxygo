@@ -37,7 +37,7 @@ func ServePAC() {
 			setWindowsRegistry()
 		case "linux":
 		}
-		if err := http.ListenAndServe("127.0.0.1:9999", nil); err != nil {
+		if err := http.ListenAndServe(":9999", nil); err != nil {
 			log.Println("serve PAC过程中出错", err)
 		}
 	}
