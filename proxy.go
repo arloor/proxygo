@@ -1,16 +1,92 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/arloor/proxygo/pac"
 	"github.com/arloor/proxygo/util"
+	"log"
 	"net"
+	"os"
+	"strconv"
 )
 
-var localAddr = ":8081"
-var proxyAddr = "proxy:8080"
+type Info struct {
+	ProxyAddr  string
+	ProxyPort  int
+	ClientPort int
+	Relay      bool
+}
 
+//implement JSONObject
+func (configInfo Info) ToJSONString() (str string, error error) {
+	b, err := json.Marshal(configInfo)
+	if err != nil {
+		return "", err
+	} else {
+		return string(b), nil
+	}
+}
+
+func (configInfo Info) String() string {
+	str, _ := configInfo.ToJSONString()
+	return str
+}
+
+var config = Info{
+	"proxy",
+	8080,
+	8081,
+	false,
+}
+
+func init() {
+	configinit()
+	localAddr = ":" + strconv.Itoa(config.ClientPort)
+	proxyAddr = config.ProxyAddr + ":" + strconv.Itoa(config.ProxyPort)
+}
+func configinit() {
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		log.Println("Error", "打开config.json失败，使用默认配置", err)
+		return
+	} else {
+		log.Println("Done", "打开config.json成功", "下面读取配置文件")
+		log.Println("Reading...")
+	}
+	bufSize := 1024
+	buf := make([]byte, bufSize)
+	for {
+		total := 0
+		n, err := configFile.Read(buf)
+		total += n
+		if err != nil {
+			log.Println("Error", "读取config.json失败，使用默认配置", err)
+			return
+		} else if n < bufSize {
+			log.Println("Done", "读取config.json成功")
+			buf = buf[:total]
+			break
+		}
+
+	}
+	err = json.Unmarshal(buf, &config)
+	if err != nil {
+		log.Println("Error", "读取config.json失败，使用默认配置", err)
+		return
+	} else {
+		log.Println("Done", "config被设置为", config)
+	}
+
+}
+
+var localAddr string
+var proxyAddr string
+
+//var proxyAddr = "193.187.119.219:8080"
+//var proxyAddr = "67.230.170.45:8080"
 func main() {
+
 	go pac.ServePAC()
 	printLocalIPs()
 
@@ -52,7 +128,7 @@ func handleBrowserConnnection(localConn net.Conn) {
 	for {
 		var buf = make([]byte, 2048)
 		numRead, err := localConn.Read(buf)
-		qufan(&buf, numRead)
+		simple(&buf, numRead)
 		if nil != err {
 			fmt.Println("读本地出错，", err)
 			localConn.Close()
@@ -68,7 +144,7 @@ func handleProxyConnection(proxyConn, localConn net.Conn) {
 	for {
 		var buf = make([]byte, 2048)
 		numRead, err := proxyConn.Read(buf)
-		qufan(&buf, numRead)
+		simple(&buf, numRead)
 		if nil != err {
 			fmt.Println("读远程出错，", err)
 			proxyConn.Close()
@@ -80,17 +156,19 @@ func handleProxyConnection(proxyConn, localConn net.Conn) {
 	}
 }
 
-func qufan(bufPtr *[]byte, num int) {
-	buf := *bufPtr
-	for i := 0; i < num; i++ {
-		buf[i] = ^buf[i]
+func simple(bufPtr *[]byte, num int) {
+	if !config.Relay {
+		buf := *bufPtr
+		for i := 0; i < num; i++ {
+			buf[i] = ^buf[i]
+		}
 	}
 }
 
 func printLocalIPs() {
 	netInterfaces, err := net.Interfaces()
 	if err != nil {
-		fmt.Println("net.Interfaces failed, err:", err.Error())
+		fmt.Println("netio.Interfaces failed, err:", err.Error())
 	}
 
 	for i := 0; i < len(netInterfaces); i++ {

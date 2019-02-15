@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"runtime"
 )
 
 var buf, err = ioutil.ReadFile("pac.txt")
@@ -14,7 +15,12 @@ const pacUrl = "http://127.0.0.1:9999/pac"
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(buf))
-	setWindowsRegistry()
+	switch runtime.GOOS {
+	case "darwin":
+	case "windows":
+		setWindowsRegistry()
+	case "linux":
+	}
 }
 
 func ServePAC() {
@@ -24,7 +30,13 @@ func ServePAC() {
 	} else {
 		http.HandleFunc("/pac", handler)
 		fmt.Println("设置pac地址为：", pacUrl)
-		setWindowsRegistry()
+		switch runtime.GOOS {
+		case "darwin":
+		case "windows":
+			setWindowsRegistry()
+		case "linux":
+		}
+
 	}
 	http.ListenAndServe("127.0.0.1:9999", nil)
 }
