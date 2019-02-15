@@ -14,29 +14,14 @@ import (
 type Info struct {
 	ProxyAddr  string
 	ProxyPort  int
-	ClientPort int
-	Relay      bool
-}
-
-//implement JSONObject
-func (configInfo Info) ToJSONString() (str string, error error) {
-	b, err := json.Marshal(configInfo)
-	if err != nil {
-		return "", err
-	} else {
-		return string(b), nil
-	}
-}
-
-func (configInfo Info) String() string {
-	str, _ := configInfo.ToJSONString()
-	return str
+	ClientPort int  //8081，请不要修改
+	Relay      bool //如果设为true ，则只做转发，不做加解密
 }
 
 var config = Info{
 	"proxy",
 	8080,
-	8081,
+	8081, //8081，请不要修改
 	false,
 }
 
@@ -45,50 +30,14 @@ func init() {
 	localAddr = ":" + strconv.Itoa(config.ClientPort)
 	proxyAddr = config.ProxyAddr + ":" + strconv.Itoa(config.ProxyPort)
 }
-func configinit() {
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		log.Println("Error", "打开config.json失败，使用默认配置", err)
-		return
-	} else {
-		log.Println("Done", "打开config.json成功", "下面读取配置文件")
-		log.Println("Reading...")
-	}
-	bufSize := 1024
-	buf := make([]byte, bufSize)
-	for {
-		total := 0
-		n, err := configFile.Read(buf)
-		total += n
-		if err != nil {
-			log.Println("Error", "读取config.json失败，使用默认配置", err)
-			return
-		} else if n < bufSize {
-			log.Println("Done", "读取config.json成功")
-			buf = buf[:total]
-			break
-		}
-
-	}
-	err = json.Unmarshal(buf, &config)
-	if err != nil {
-		log.Println("Error", "读取config.json失败，使用默认配置", err)
-		return
-	} else {
-		log.Println("Done", "config被设置为", config)
-	}
-
-}
 
 var localAddr string
 var proxyAddr string
 
-//var proxyAddr = "193.187.119.219:8080"
-//var proxyAddr = "67.230.170.45:8080"
 func main() {
 
 	go pac.ServePAC()
-	printLocalIPs()
+	//printLocalIPs()
 
 	ln, err := net.Listen("tcp", localAddr)
 	if err != nil {
@@ -197,4 +146,54 @@ func writeAllBytes(dstConn net.Conn, otherConn net.Conn, buf []byte, num int) {
 		}
 		writtenNum += tempNum
 	}
+}
+
+//implement JSONObject
+func (configInfo Info) ToJSONString() (str string, error error) {
+	b, err := json.Marshal(configInfo)
+	if err != nil {
+		return "", err
+	} else {
+		return string(b), nil
+	}
+}
+
+func (configInfo Info) String() string {
+	str, _ := configInfo.ToJSONString()
+	return str
+}
+
+func configinit() {
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		log.Println("Error", "打开config.json失败，使用默认配置", err)
+		return
+	} else {
+		log.Println("Done", "打开config.json成功", "下面读取配置文件")
+		log.Println("Reading...")
+	}
+	bufSize := 1024
+	buf := make([]byte, bufSize)
+	for {
+		total := 0
+		n, err := configFile.Read(buf)
+		total += n
+		if err != nil {
+			log.Println("Error", "读取config.json失败，使用默认配置", err)
+			return
+		} else if n < bufSize {
+			log.Println("Done", "读取config.json成功")
+			buf = buf[:total]
+			break
+		}
+
+	}
+	err = json.Unmarshal(buf, &config)
+	if err != nil {
+		log.Println("Error", "读取config.json失败，使用默认配置", err)
+		return
+	} else {
+		log.Println("Done", "config被设置为", config)
+	}
+
 }

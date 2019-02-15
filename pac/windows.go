@@ -7,7 +7,11 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-func setWindowsRegistry() {
+func init() {
+	setWindowsRegistry = doSetWindowsRegistry
+}
+
+func doSetWindowsRegistry() {
 	//设置注册表
 	key, exists, err := registry.CreateKey(registry.CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", registry.ALL_ACCESS)
 	if err != nil {
@@ -27,5 +31,5 @@ func setWindowsRegistry() {
 	// 写入32位整形值
 	key.SetDWordValue("MigrateProxy", 0x00000001)
 	key.SetDWordValue("ProxyEnable", 0x00000000)
-	fmt.Println("设置windows代理相关注册表成功")
+	fmt.Println("自动设置windows代理相关注册表成功")
 }
