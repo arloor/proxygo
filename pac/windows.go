@@ -15,14 +15,14 @@ func doSetWindowsRegistry() {
 	//设置注册表
 	key, exists, err := registry.CreateKey(registry.CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", registry.ALL_ACCESS)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	defer key.Close()
 
 	if exists {
-		//fmt.Println("键已存在")
+		//log.Println("键已存在")
 	} else {
-		fmt.Println("此注册表项不存在，已自动新建")
+		log.Println("此注册表项不存在，已自动新建")
 	}
 	// 写入字符串
 	key.SetStringValue("AutoConfigURL", pacUrl)
@@ -31,5 +31,5 @@ func doSetWindowsRegistry() {
 	// 写入32位整形值
 	key.SetDWordValue("MigrateProxy", 0x00000001)
 	key.SetDWordValue("ProxyEnable", 0x00000000)
-	fmt.Println("自动设置windows代理相关注册表成功")
+	log.Println("自动设置windows代理相关注册表成功")
 }

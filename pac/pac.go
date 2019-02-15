@@ -3,6 +3,7 @@ package pac
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"runtime"
 )
@@ -26,10 +27,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func ServePAC() {
 	if err != nil {
-		fmt.Println("pac设置失败", err)
+		log.Println("pac设置失败", err)
 	} else {
 		http.HandleFunc("/pac", handler)
-		fmt.Println("pac地址为：", pacUrl)
+		log.Println("pac地址为：", pacUrl)
 		switch runtime.GOOS {
 		case "darwin":
 		case "windows":
@@ -37,7 +38,7 @@ func ServePAC() {
 		case "linux":
 		}
 		if err := http.ListenAndServe("127.0.0.1:9999", nil); err != nil {
-			fmt.Println("serve PAC过程中出错", err)
+			log.Println("serve PAC过程中出错", err)
 		}
 	}
 
