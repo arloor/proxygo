@@ -25,3 +25,5 @@
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
+
+go_build_proxy_go
