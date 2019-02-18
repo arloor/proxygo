@@ -87,7 +87,7 @@ func handleBrowserConnnection(localConn net.Conn) {
 			proxyConn.Close()
 			break
 		}
-		log.Println("从本地读到：", numRead, "字节")
+		log.Println("从本地读到：", numRead, "字节", "from", localConn.RemoteAddr())
 		writeAllBytes(proxyConn, localConn, buf, numRead)
 	}
 }
