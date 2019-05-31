@@ -3,5 +3,5 @@
   "ProxyPort": 8080,
   "ClientPort": 8888,
   "Relay": false,
-  "Dev": true
+  "Dev": false
 }

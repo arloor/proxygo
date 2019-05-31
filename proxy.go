@@ -195,7 +195,7 @@ func configinit() {
 	}
 	err = json.Unmarshal(buf, &config)
 	if !config.Dev {
-		logFile, _ := os.Open("log.txt")
+		logFile, _ := os.OpenFile(util.GetWorkDir()+"log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		log.SetOutput(logFile)
 	}
 	if err != nil {
