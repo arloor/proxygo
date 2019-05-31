@@ -15,6 +15,7 @@ type Info struct {
 	ProxyPort  int
 	ClientPort int  //8081，请不要修改
 	Relay      bool //如果设为true ，则只做转发，不做加解密
+	Dev        bool
 }
 
 var config = Info{
@@ -22,6 +23,7 @@ var config = Info{
 	8080,
 	8081, //8081，请不要修改
 	false,
+	true,
 }
 
 func init() {
@@ -168,11 +170,13 @@ func (configInfo Info) String() string {
 }
 
 func configinit() {
+	log.SetFlags(log.Lshortfile | log.Flags())
 	configFile, err := os.Open(util.GetWorkDir() + "proxy.json")
 	if err != nil {
 		log.Println("Error", "打开proxy.json失败，使用默认配置", err)
 		return
 	}
+
 	bufSize := 1024
 	buf := make([]byte, bufSize)
 	for {
@@ -190,6 +194,10 @@ func configinit() {
 
 	}
 	err = json.Unmarshal(buf, &config)
+	if !config.Dev {
+		logFile, _ := os.Open("log.txt")
+		log.SetOutput(logFile)
+	}
 	if err != nil {
 		log.Println("Error", "读取proxy.json失败，使用默认配置", err)
 		return
