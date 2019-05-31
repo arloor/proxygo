@@ -1,6 +1,6 @@
 {
-  "ProxyAddr": "proxy",
+  "ProxyAddr": "dc6.ddnspod.xyz",
   "ProxyPort": 8080,
-  "ClientPort": 8081,
+  "ClientPort": 8888,
   "Relay": false
 }

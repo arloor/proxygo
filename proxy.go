@@ -54,6 +54,7 @@ func main() {
 		if err != nil {
 			log.Println("接受连接失败 ", err)
 		} else {
+			log.Println("接受连接 ", c.RemoteAddr())
 			go handleBrowserConnnection(c)
 		}
 	}
@@ -72,38 +73,38 @@ func handleBrowserConnnection(localConn net.Conn) {
 		for localConn.Close() != nil {
 			log.Println("上次关闭channel失败，再次尝试", localConn.RemoteAddr())
 		}
-		log.Println("关闭channel成功 ", localConn.RemoteAddr())
+		//log.Println("关闭channel成功 ", localConn.RemoteAddr())
 		return
 	}
-	log.Println("连接到远程服务器成功 ", proxyConn.RemoteAddr())
+	//log.Println("连接到远程服务器成功 ", proxyConn.RemoteAddr())
 	go handleProxyConnection(proxyConn, localConn)
+	var buf = make([]byte, 8192)
 	for {
-		var buf = make([]byte, 2048)
 		numRead, err := localConn.Read(buf)
 		simple(&buf, numRead)
 		if nil != err {
-			log.Println("读本地出错，", err)
+			//log.Println("读本地出错，", err)
 			localConn.Close()
 			proxyConn.Close()
 			break
 		}
-		log.Println("从本地读到：", numRead, "字节", "from", localConn.RemoteAddr())
+		//log.Println("从本地读到：", numRead, "字节", "from", localConn.RemoteAddr())
 		writeAllBytes(proxyConn, localConn, buf, numRead)
 	}
 }
 
 func handleProxyConnection(proxyConn, localConn net.Conn) {
+	var buf = make([]byte, 8192)
 	for {
-		var buf = make([]byte, 2048)
 		numRead, err := proxyConn.Read(buf)
 		simple(&buf, numRead)
 		if nil != err {
-			log.Println("读远程出错，", err)
+			//log.Println("读远程出错，", err)
 			proxyConn.Close()
 			proxyConn.Close()
 			break
 		}
-		log.Println("从远程读到：", numRead, "字节")
+		//log.Println("从远程读到：", numRead, "字节")
 		writeAllBytes(localConn, proxyConn, buf, numRead)
 	}
 }
@@ -142,7 +143,7 @@ func writeAllBytes(dstConn net.Conn, otherConn net.Conn, buf []byte, num int) {
 	for writtenNum := 0; writtenNum != num; {
 		tempNum, err := dstConn.Write(buf[writtenNum:num])
 		if err != nil {
-			log.Println("写出错 ", err)
+			//log.Println("写出错 ", err)
 			dstConn.Close()
 			otherConn.Close()
 			break
