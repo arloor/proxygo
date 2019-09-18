@@ -102,7 +102,7 @@ func handleProxyConnection(proxyConn, localConn net.Conn) {
 		simple(&buf, numRead)
 		if nil != err {
 			//log.Println("读远程出错，", err)
-			proxyConn.Close()
+			localConn.Close()
 			proxyConn.Close()
 			break
 		}
