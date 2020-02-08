@@ -28,3 +28,5 @@
 
 go_build_proxy_go
 log.txt
+
+/build
