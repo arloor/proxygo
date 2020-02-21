@@ -16,6 +16,7 @@ type Info struct {
 	ClientPort int  //8081，请不要修改
 	Relay      bool //如果设为true ，则只做转发，不做加解密
 	Dev        bool
+	Local      bool //如果为true，则只监听127.0.0.1
 }
 
 var config = Info{
@@ -24,13 +25,19 @@ var config = Info{
 	8081, //8081，请不要修改
 	false,
 	true,
+	true,
 }
 
 func init() {
 	log.Println("！！！请务必在运行前将proxy.json和pac.txt放置到", util.GetWorkDir(), "路径下")
 	configinit()
 	log.Println("配置信息为：", config)
-	localAddr = ":" + strconv.Itoa(config.ClientPort)
+	if config.Local {
+		localAddr = "127.0.0.1"
+	} else {
+		localAddr = ""
+	}
+	localAddr += ":" + strconv.Itoa(config.ClientPort)
 	proxyAddr = config.ProxyAddr + ":" + strconv.Itoa(config.ProxyPort)
 }
 
