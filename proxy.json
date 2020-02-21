@@ -1,7 +1,7 @@
 {
   "ProxyAddr": "proxy",
   "ProxyPort": 8080,
-  "ClientPort": 8888,
+  "ClientPort": 8081,
   "Relay": false,
   "Dev": true,
   "Local": true
